@@ -40,7 +40,6 @@ mod tests {
             .limit(100)
             .to_string(ClickHouseQueryBuilder);
         let cycles: Vec<Value> = client.fetch_many(&sql).await?;
-        println!("{:#?}", cycles);
         Ok(())
     }
     #[tokio::test(flavor = "current_thread")]
@@ -52,9 +51,7 @@ mod tests {
             .from(Alias::new("service_cycles"))
             .limit(1)
             .to_string(ClickHouseQueryBuilder);
-        println!("{sql}");
         let cycles: Option<Value> = client.fetch_one(&sql).await?;
-        println!("{:#?}", cycles);
         Ok(())
     }
 }

@@ -41,8 +41,7 @@ impl ClickhouseClient {
         let query = format!("{query} format JSON");
         let response = client.post(url).body(query).send().await?;
         let response = response.bytes().await?;
-        let Response {data, statistics}  = serde_json::from_slice(&response)?;
-        println!("{:?}", statistics);
+        let Response {data}  = serde_json::from_slice(&response)?;
         Ok(data)
     }
 }
@@ -50,12 +49,4 @@ impl ClickhouseClient {
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Response<T> {
     pub data: Vec<T>,
-    pub statistics: Statistics,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
-pub struct Statistics {
-    pub elapsed: f64,
-    pub rows_read: i64,
-    pub bytes_read: i64,
 }
