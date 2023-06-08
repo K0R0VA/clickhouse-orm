@@ -13,29 +13,33 @@ mod tests {
 
     #[test]
     fn basic_select()  {
-        let (query, _) = Query::select()
+        let query = Query::select()
             .from(Alias::new("users"))
             .column(Alias::new("name"))
-            .build(ClickHouseQueryBuilder);
+            .to_string(ClickHouseQueryBuilder);
         assert_eq!("SELECT \"name\" FROM \"users\"", query);
     }
 
     #[test]
     fn select_with_eq() {
-        let (query, _) = Query::select()
+        let query = Query::select()
             .from(Alias::new("users"))
             .column(Alias::new("name"))
             .cond_where(Condition::all().add(Expr::col(Alias::new("name")).eq("serega")))
-            .build(ClickHouseQueryBuilder);
-        assert_eq!("SELECT \"name\" FROM \"users\" WHERE \"name\" = $1", query);
+            .to_string(ClickHouseQueryBuilder);
+        assert_eq!("SELECT \"name\" FROM \"users\" WHERE \"name\" = 'serega'", query);
     }
 
     #[tokio::test(flavor = "current_thread")]
     async fn fetch_many() -> Result<(), Error> {
         dotenv::dotenv().ok();
         let client = ClickhouseClient::from_env()?;
-        let sql = "select * from service_cycles limit 100";
-        let cycles: Vec<Value> = client.fetch_many(sql).await?;
+        let sql = Query::select()
+            .expr(Expr::asterisk())
+            .from(Alias::new("service_cycles"))
+            .limit(100)
+            .to_string(ClickHouseQueryBuilder);
+        let cycles: Vec<Value> = client.fetch_many(&sql).await?;
         println!("{:#?}", cycles);
         Ok(())
     }
@@ -43,8 +47,13 @@ mod tests {
     async fn fetch_one() -> Result<(), Error> {
         dotenv::dotenv().ok();
         let client = ClickhouseClient::from_env()?;
-        let sql = "select * from service_cycles limit 1";
-        let cycles: Option<Value> = client.fetch_one(sql).await?;
+        let sql = Query::select()
+            .expr(Expr::asterisk())
+            .from(Alias::new("service_cycles"))
+            .limit(1)
+            .to_string(ClickHouseQueryBuilder);
+        println!("{sql}");
+        let cycles: Option<Value> = client.fetch_one(&sql).await?;
         println!("{:#?}", cycles);
         Ok(())
     }
