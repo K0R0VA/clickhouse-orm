@@ -84,14 +84,14 @@ mod tests {
             .limit(1)
             .to_string(ClickHouseQueryBuilder);
         let error = client.fetch_one::<i32>(&sql).await;
-        let is_database_error =  match error {
+        let is_deserialize_error =  match error {
             Err(Error::DeserializeError(error)) => {
                 println!("{}", error);
                 true
             },
             _ => false
         };
-        assert!(is_database_error);
+        assert!(is_deserialize_error);
         Ok(())
     }
 }
