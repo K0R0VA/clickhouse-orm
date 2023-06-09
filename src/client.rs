@@ -54,7 +54,7 @@ impl ClickhouseClient {
             Err(error) => {
                 let body = String::from_utf8_lossy(&response).to_string();
                 let error: DeserializeError<R> = DeserializeError {
-                    failed_kind: PhantomData::default(),
+                    failed_kind: PhantomData,
                     failed_query: query,
                     error,
                     body
@@ -69,10 +69,10 @@ impl ClickhouseClient {
 
 #[derive(Debug)]
 pub struct DeserializeError<T> {
-    failed_kind: PhantomData<T>,
-    failed_query: String,
-    error: serde_json::Error,
-    body: String
+    pub failed_kind: PhantomData<T>,
+    pub failed_query: String,
+    pub error: serde_json::Error,
+    pub body: String
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]

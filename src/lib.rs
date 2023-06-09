@@ -2,6 +2,9 @@ mod query_builder;
 mod client;
 mod error;
 
+pub use query_builder::ClickHouseQueryBuilder;
+pub use client::{DeserializeError, ClickhouseClient, DatabaseError};
+pub use error::Error;
 
 #[cfg(test)]
 mod tests {
@@ -39,7 +42,7 @@ mod tests {
             .from(Alias::new("service_cycles"))
             .limit(100)
             .to_string(ClickHouseQueryBuilder);
-        let cycles: Vec<Value> = client.fetch_many(&sql).await?;
+        let _ = client.fetch_many::<Value>(&sql).await?;
         Ok(())
     }
     #[tokio::test(flavor = "current_thread")]
@@ -51,7 +54,7 @@ mod tests {
             .from(Alias::new("service_cycles"))
             .limit(1)
             .to_string(ClickHouseQueryBuilder);
-        let cycles: Option<Value> = client.fetch_one(&sql).await?;
+        let _ = client.fetch_one::<Value>(&sql).await?;
         Ok(())
     }
     #[tokio::test(flavor = "current_thread")]
@@ -80,15 +83,15 @@ mod tests {
             .from(Alias::new("service_cycles"))
             .limit(1)
             .to_string(ClickHouseQueryBuilder);
-        let error = client.fetch_one::<i32>(&sql).await?;
-        // let is_database_error =  match error {
-        //     Err(Error::DeserializeError(error)) => {
-        //         println!("{}", error);
-        //         true
-        //     },
-        //     _ => false
-        // };
-        // assert!(is_database_error);
+        let error = client.fetch_one::<i32>(&sql).await;
+        let is_database_error =  match error {
+            Err(Error::DeserializeError(error)) => {
+                println!("{}", error);
+                true
+            },
+            _ => false
+        };
+        assert!(is_database_error);
         Ok(())
     }
 }

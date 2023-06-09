@@ -1,4 +1,4 @@
-use sea_query::{BinOper, EscapeBuilder, Function, PgFunction, QueryBuilder, QuotedBuilder, SeaRc, SelectDistinct, SimpleExpr, SqlWriter, SubQueryStatement, TableRefBuilder, Value};
+use sea_query::{BinOper, EscapeBuilder, Function, QueryBuilder, QuotedBuilder, SeaRc, SelectDistinct, SimpleExpr, SqlWriter, SubQueryStatement, TableRefBuilder, Value};
 use sea_query::extension::postgres::PgBinOper;
 use sea_query::Write;
 
@@ -73,38 +73,8 @@ impl QueryBuilder for ClickHouseQueryBuilder {
         }
     }
 
-    fn prepare_query_statement(&self, query: &SubQueryStatement, sql: &mut dyn SqlWriter) {
-        // query.prepare_statement(self, sql);
-    }
-
-    fn prepare_function(&self, function: &Function, sql: &mut dyn SqlWriter) {
-        match function {
-            Function::PgFunction(function) => write!(
-                sql,
-                "{}",
-                match function {
-                    PgFunction::ToTsquery => "TO_TSQUERY",
-                    PgFunction::ToTsvector => "TO_TSVECTOR",
-                    PgFunction::PhrasetoTsquery => "PHRASETO_TSQUERY",
-                    PgFunction::PlaintoTsquery => "PLAINTO_TSQUERY",
-                    PgFunction::WebsearchToTsquery => "WEBSEARCH_TO_TSQUERY",
-                    PgFunction::TsRank => "TS_RANK",
-                    PgFunction::TsRankCd => "TS_RANK_CD",
-                    PgFunction::StartsWith => "STARTS_WITH",
-                    PgFunction::GetRandomUUID => "GEN_RANDOM_UUID",
-                    // #[cfg(feature = "postgres-array")]
-                    // PgFunction::Any => "ANY",
-                    // #[cfg(feature = "postgres-array")]
-                    // PgFunction::Some => "SOME",
-                    // #[cfg(feature = "postgres-array")]
-                    // PgFunction::All => "ALL",
-                    _ => ""
-                }
-            )
-                .unwrap(),
-            _ => self.prepare_function_common(function, sql),
-        }
-    }
+    fn prepare_query_statement(&self, _: &SubQueryStatement, _: &mut dyn SqlWriter) {}
+    fn prepare_function(&self, _: &Function, _: &mut dyn SqlWriter) {}
 
     // fn prepare_order_expr(&self, order_expr: &OrderExpr, sql: &mut dyn SqlWriter) {
     //     if !matches!(order_expr.order, Order::Field(_)) {
