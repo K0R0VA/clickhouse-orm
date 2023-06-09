@@ -54,4 +54,41 @@ mod tests {
         let cycles: Option<Value> = client.fetch_one(&sql).await?;
         Ok(())
     }
+    #[tokio::test(flavor = "current_thread")]
+    async fn handle_database_error() -> Result<(), Error> {
+        dotenv::dotenv().ok();
+        let client = ClickhouseClient::from_env()?;
+        let sql = Query::select()
+            .expr(Expr::asterisk())
+            .from(Alias::new("service_cycles_exception"))
+            .limit(1)
+            .to_string(ClickHouseQueryBuilder);
+        let error = client.fetch_one::<Value>(&sql).await;
+        let is_database_error =  match error {
+            Err(Error::Database(_)) => true,
+            _ => false
+        };
+        assert!(is_database_error);
+        Ok(())
+    }
+    #[tokio::test(flavor = "current_thread")]
+    async fn handle_deserialize_error() -> Result<(), Error> {
+        dotenv::dotenv().ok();
+        let client = ClickhouseClient::from_env()?;
+        let sql = Query::select()
+            .expr(Expr::asterisk())
+            .from(Alias::new("service_cycles"))
+            .limit(1)
+            .to_string(ClickHouseQueryBuilder);
+        let error = client.fetch_one::<i32>(&sql).await?;
+        // let is_database_error =  match error {
+        //     Err(Error::DeserializeError(error)) => {
+        //         println!("{}", error);
+        //         true
+        //     },
+        //     _ => false
+        // };
+        // assert!(is_database_error);
+        Ok(())
+    }
 }

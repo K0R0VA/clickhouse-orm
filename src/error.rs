@@ -1,6 +1,8 @@
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
+    Database(#[from] crate::client::DatabaseError),
+    #[error(transparent)]
     Http (#[from] reqwest::Error),
     #[error(transparent)]
     Header(#[from] reqwest::header::InvalidHeaderValue),
@@ -8,6 +10,6 @@ pub enum Error {
     HeaderName(#[from] reqwest::header::InvalidHeaderName),
     #[error(transparent)]
     Env (#[from] std::env::VarError),
-    #[error(transparent)]
-    Json(#[from] serde_json::Error),
+    #[error("{0:#?}")]
+    DeserializeError(String),
 }
