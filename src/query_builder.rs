@@ -1,4 +1,4 @@
-use sea_query::{BinOper, EscapeBuilder, Function, QueryBuilder, QuotedBuilder, SeaRc, SelectDistinct, SimpleExpr, SqlWriter, SubQueryStatement, TableRefBuilder, Value};
+use sea_query::{BinOper, EscapeBuilder, QueryBuilder, QuotedBuilder, SelectDistinct, SqlWriter, SubQueryStatement, TableRefBuilder, Value};
 use sea_query::extension::postgres::PgBinOper;
 use sea_query::Write;
 
@@ -17,16 +17,6 @@ impl TableRefBuilder for ClickHouseQueryBuilder {}
 impl QueryBuilder for ClickHouseQueryBuilder {
     fn placeholder(&self) -> (&str, bool) {
         ("$", true)
-    }
-
-    fn prepare_simple_expr(&self, simple_expr: &SimpleExpr, sql: &mut dyn SqlWriter) {
-        match simple_expr {
-            SimpleExpr::AsEnum(type_name, expr) => {
-                let simple_expr = expr.clone().cast_as(SeaRc::clone(type_name));
-                self.prepare_simple_expr_common(&simple_expr, sql);
-            }
-            _ => QueryBuilder::prepare_simple_expr_common(self, simple_expr, sql),
-        }
     }
 
     fn prepare_select_distinct(&self, select_distinct: &SelectDistinct, sql: &mut dyn SqlWriter) {
@@ -74,7 +64,6 @@ impl QueryBuilder for ClickHouseQueryBuilder {
     }
 
     fn prepare_query_statement(&self, _: &SubQueryStatement, _: &mut dyn SqlWriter) {}
-    fn prepare_function(&self, _: &Function, _: &mut dyn SqlWriter) {}
 
     // fn prepare_order_expr(&self, order_expr: &OrderExpr, sql: &mut dyn SqlWriter) {
     //     if !matches!(order_expr.order, Order::Field(_)) {

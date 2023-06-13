@@ -24,6 +24,15 @@ mod tests {
     }
 
     #[test]
+    fn basic_select_count()  {
+        let query = Query::select()
+            .from(Alias::new("users"))
+            .expr_as(Expr::value(Expr::col(Alias::new("name")).count()), Alias::new("count"))
+            .to_string(ClickHouseQueryBuilder);
+        assert_eq!("SELECT COUNT(\"name\") AS \"count\" FROM \"users\"", query);
+    }
+
+    #[test]
     fn select_with_eq() {
         let query = Query::select()
             .from(Alias::new("users"))
